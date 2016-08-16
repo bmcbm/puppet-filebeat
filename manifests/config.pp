@@ -13,6 +13,11 @@ class filebeat::config {
     'runoptions' => $filebeat::run_options,
   }
 
+  $notify = $filebeat::package_ensure ? {
+    'absent' => undef,
+    default  => Service['filebeat'],
+  }
+
   case $::kernel {
     'Linux'   : {
       file {'filebeat.yml':
@@ -22,7 +27,7 @@ class filebeat::config {
         owner   => 'root',
         group   => 'root',
         mode    => $filebeat::config_file_mode,
-        notify  => Service['filebeat'],
+        notify  => $notify,
       }
 
       file {'filebeat-config-dir':
@@ -41,7 +46,7 @@ class filebeat::config {
         ensure  => file,
         path    => $filebeat::config_file,
         content => template($filebeat::conf_template),
-        notify  => Service['filebeat'],
+        notify  => $notify,
       }
 
       file {'filebeat-config-dir':
