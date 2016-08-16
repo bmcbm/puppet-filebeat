@@ -123,6 +123,21 @@ flag.
 When `prospectors_merge` is set to true, `prospectors` will be replaced by the output of
 `hiera_hash('filebeat::prospectors')`.
 
+### Only write config files
+
+It is possible to have this module write filebeat configs without installing the package or service.
+One usecase for this is if filebeat runs inside a (docker) container, but mounts configuration from the host.
+Simply set package_ensure to absent
+
+```puppet
+class {'filebeat':
+  package_ensure => absent,
+  outputs => {
+     ...
+  }
+}
+```
+
 ### Usage on Windows
 
 When installing on Windows, this module will download the windows version of Filebeat from
