@@ -19,11 +19,11 @@ class filebeat::config {
   }
 
   file {'filebeat-dir':
-    ensure  => directory,
-    path    => dirname($filebeat::config_file),
-    owner   => 'root',
-    group   => 'root',
-    mode    => $filebeat::config_dir_mode,
+    ensure => directory,
+    path   => dirname($filebeat::config_file),
+    owner  => 'root',
+    group  => 'root',
+    mode   => $filebeat::config_dir_mode,
   }
 
   case $::kernel {
