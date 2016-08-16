@@ -13,6 +13,19 @@ class filebeat::config {
     'runoptions' => $filebeat::run_options,
   }
 
+  $notify = $filebeat::package_ensure ? {
+    'absent' => undef,
+    default  => Service['filebeat'],
+  }
+
+  file {'filebeat-dir':
+    ensure  => directory,
+    path    => dirname($filebeat::config_file),
+    owner   => 'root',
+    group   => 'root',
+    mode    => $filebeat::config_dir_mode,
+  }
+
   case $::kernel {
     'Linux'   : {
       file {'filebeat.yml':
@@ -22,7 +35,8 @@ class filebeat::config {
         owner   => 'root',
         group   => 'root',
         mode    => $filebeat::config_file_mode,
-        notify  => Service['filebeat'],
+        notify  => $notify,
+        require => File['filebeat-dir']
       }
 
       file {'filebeat-config-dir':
@@ -33,6 +47,7 @@ class filebeat::config {
         mode    => $filebeat::config_dir_mode,
         recurse => $filebeat::purge_conf_dir,
         purge   => $filebeat::purge_conf_dir,
+        require => File['filebeat-dir']
       }
     } # end Linux
 
@@ -41,7 +56,8 @@ class filebeat::config {
         ensure  => file,
         path    => $filebeat::config_file,
         content => template($filebeat::conf_template),
-        notify  => Service['filebeat'],
+        notify  => $notify,
+        require => File['filebeat-dir']
       }
 
       file {'filebeat-config-dir':
@@ -49,6 +65,7 @@ class filebeat::config {
         path    => $filebeat::config_dir,
         recurse => $filebeat::purge_conf_dir,
         purge   => $filebeat::purge_conf_dir,
+        require => File['filebeat-dir']
       }
     } # end Windows
 
